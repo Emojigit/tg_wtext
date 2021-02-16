@@ -14,11 +14,11 @@ URL = "https://zh.wikipedia.org/w/api.php"
 def shorttxt(txt,l):
     return (txt[:l] + '..') if len(txt) > l else txt
 
-def pwtxt(S,wtxt):
+def pwtxt(S,wtxt): # TextWikiPlus coding style, can merge into textwikiplus
     """
     parse.py
 
-    Modify MediaWiki API Demos
+    Modify From MediaWiki API Demos
     https://www.mediawiki.org/wiki/API:Parsing_wikitext/zh
 
     Origional License: MIT License
