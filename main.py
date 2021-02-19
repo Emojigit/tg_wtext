@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import requests, logging, re
-from telegram.ext import Updater, MessageHandler, CommandHandler, CallbackContext
+from telegram.ext import Updater, MessageHandler, CommandHandler, CallbackContext, InlineQueryHandler
 from telegram.ext.filters import Filters
 from telegram.error import InvalidToken
-from telegram import ParseMode, Update
+from telegram import ParseMode, Update, InlineQueryResultArticle, InputTextMessageContent
+from uuid import uuid4
 logging.basicConfig(level=logging.INFO,format="%(asctime)s %(levelname)s[%(name)s] %(message)s")
 log = logging.getLogger("MainScript")
 
@@ -50,6 +51,21 @@ def token():
         # print("[ERROR] No token.txt!")
         exit(3)
 
+def iQ(update: Update, context: CallbackContext) -> None:
+    context = update.inline_query.query
+    log.info("Inline mode!")
+    if len(context) == 0:
+        update.inline_query.answer([InlineQueryResultArticle(id=uuid4(), title="No wikitext!", input_message_content=InputTextMessageContent("No wikitext!")),])
+        return
+    rt = re.search('<div class=\"mw-parser-output\">((.|\r|\n)*)</div>', re.sub("<!-- \nNewPP(.|\r|\n)*-->", "", pwtxt(S,context))).group(1)
+    results = [
+        InlineQueryResultArticle(
+            id=uuid4(), title="Parser", input_message_content=InputTextMessageContent(shorttxt(rt,400))
+        ),
+    ]
+    update.inline_query.answer(results)
+
+
 def main():
     """Start the bot."""
     tok = token()
@@ -61,6 +77,7 @@ def main():
         raise
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('pwtxt', cmd))
+    dp.add_handler(InlineQueryHandler(iQ))
     updater.start_polling()
     log.info("Started the bot! Use Ctrl-C to stop it.")
     updater.idle()
