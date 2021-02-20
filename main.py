@@ -4,6 +4,7 @@ from telegram.ext import Updater, MessageHandler, CommandHandler, CallbackContex
 from telegram.ext.filters import Filters
 from telegram.error import InvalidToken
 from telegram import ParseMode, Update, InlineQueryResultArticle, InputTextMessageContent
+from telegram.utils.helpers import escape_markdown as EM
 from uuid import uuid4
 logging.basicConfig(level=logging.INFO,format="%(asctime)s %(levelname)s[%(name)s] %(message)s")
 log = logging.getLogger("MainScript")
@@ -60,7 +61,7 @@ def iQ(update: Update, context: CallbackContext) -> None:
     rt = re.search('<div class=\"mw-parser-output\">((.|\r|\n)*)</div>', re.sub("<!-- \nNewPP(.|\r|\n)*-->", "", pwtxt(S,context))).group(1)
     results = [
         InlineQueryResultArticle(
-            id=uuid4(), title="Parser", input_message_content=InputTextMessageContent(shorttxt(rt,400))
+            id=uuid4(), title="Parser", input_message_content=InputTextMessageContent("**Origional: **" + EM(context,2) + "\n\n**Parsed text: **" + EM(shorttxt(rt,400),2),parse_mode=ParseMode.MARKDOWN_V2)
         ),
     ]
     update.inline_query.answer(results)
